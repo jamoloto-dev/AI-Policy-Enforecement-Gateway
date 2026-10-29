@@ -1,0 +1,157 @@
+{
+  "version": "1.0.0",
+  "updated_at": "2026-10-29T00:00:00Z",
+  "description": "Predefined security policies for AI Policy Enforcement Gateway",
+  "policies": [
+    {
+      "id": "PI-001",
+      "name": "Direct Instruction Override",
+      "description": "Detects attempts to override system, developer, or meta instructions (e.g., 'ignore previous instructions').",
+      "category": "PROMPT_INJECTION",
+      "severity": "CRITICAL",
+      "action": "BLOCK",
+      "enabled": true,
+      "patterns": [
+        "ignore\\s+(all\\s+)?(previous|prior|above|preceding)\\s+(instructions|prompts|rules|commands|directives)",
+        "disregard\\s+(all\\s+)?(prior|previous|existing)\\s+(guidelines|instructions|constraints)",
+        "override\\s+(all\\s+)?(system|safety|security)\\s+(prompts|instructions|protocols)",
+        "forget\\s+(all\\s+)?(previous|prior)\\s+(instructions|context|rules)"
+      ]
+    },
+    {
+      "id": "PI-002",
+      "name": "System Prompt Exfiltration",
+      "description": "Detects requests targeting disclosure of confidential internal system prompts or hidden developer instructions.",
+      "category": "PROMPT_INJECTION",
+      "severity": "HIGH",
+      "action": "BLOCK",
+      "enabled": true,
+      "patterns": [
+        "(reveal|show|print|display|dump|leak|repeat|output)\\s+(the\\s+)?(system|internal|developer|hidden|secret|initial)\\s+(prompt|instructions|rules|preamble)",
+        "repeat\\s+(the\\s+words\\s+)?above\\s+verbatim",
+        "what\\s+(are|were)\\s+(your|the)\\s+(original|initial|system)\\s+(instructions|prompts)"
+      ]
+    },
+    {
+      "id": "PI-003",
+      "name": "Roleplay & Persona Hijacking",
+      "description": "Detects attempts to bypass safety policies via DAN, unrestricted personas, or developer debug mode simulations.",
+      "category": "PROMPT_INJECTION",
+      "severity": "HIGH",
+      "action": "BLOCK",
+      "enabled": true,
+      "patterns": [
+        "\\b(you\\s+are\\s+now|act\\s+as|pretend\\s+to\\s+be)\\s+(DAN|Do\\s+Anything\\s+Now|an\\s+unrestricted|a\\s+jailbroken|Developer\\s+Mode)\\b",
+        "pretend\\s+you\\s+have\\s+no\\s+(rules|restrictions|limits|guidelines|morals|filters)",
+        "you\\s+have\\s+broken\\s+free\\s+of\\s+your\\s+rules"
+      ]
+    },
+    {
+      "id": "PI-004",
+      "name": "Safety & Guardrail Bypass",
+      "description": "Detects direct commands requesting disabling of ethical filters, guardrails, or safety moderation.",
+      "category": "PROMPT_INJECTION",
+      "severity": "HIGH",
+      "action": "BLOCK",
+      "enabled": true,
+      "patterns": [
+        "(disable|bypass|turn\\s+off|remove|circumvent)\\s+(all\\s+)?(safety|ethical|content|guardrail|moderation)\\s+(filters|checks|restrictions|rules)",
+        "ignore\\s+(safety|content|ethical)\\s+(policy|guidelines|restrictions)"
+      ]
+    },
+    {
+      "id": "PI-005",
+      "name": "Delimiter & Chat Markup Injection",
+      "description": "Detects attempts to inject fake system delimiters such as <|im_start|>, [SYSTEM], or markdown boundary spoofing.",
+      "category": "PROMPT_INJECTION",
+      "severity": "MEDIUM",
+      "action": "WARN",
+      "enabled": true,
+      "patterns": [
+        "<\\|im_start\\|>system",
+        "\\[SYSTEM\\]",
+        "\\{\\s*\"role\"\\s*:\\s*\"system\"",
+        "<!--\\s*system\\b",
+        "###\\s*System\\s*Prompt:"
+      ]
+    },
+    {
+      "id": "PI-006",
+      "name": "Credential & Secret Harvesting",
+      "description": "Detects prompts explicitly instructing the model to dump environment variables, API keys, or database passwords.",
+      "category": "CREDENTIAL_EXPOSURE",
+      "severity": "CRITICAL",
+      "action": "BLOCK",
+      "enabled": true,
+      "patterns": [
+        "(dump|print|reveal|expose|output)\\s+(all\\s+)?(env|environment\\s+variables|api[_-]?keys?|secrets|credentials|passwords)",
+        "process\\.env|os\\.environ"
+      ]
+    },
+    {
+      "id": "SD-001",
+      "name": "Email Address Exposure",
+      "description": "Detects plain email addresses and replaces them with a redacted token to protect user PII.",
+      "category": "SENSITIVE_DATA",
+      "severity": "LOW",
+      "action": "REDACT",
+      "enabled": true,
+      "patterns": [
+        "[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+"
+      ]
+    },
+    {
+      "id": "SD-002",
+      "name": "Telephone Number Disclosure",
+      "description": "Detects local and international telephone numbers to prevent personal contact disclosure.",
+      "category": "SENSITIVE_DATA",
+      "severity": "LOW",
+      "action": "REDACT",
+      "enabled": true,
+      "patterns": [
+        "(?:\\+?27|0)[1-8][0-9]{8}",
+        "(?:\\+?1[-.\\s]?)?\\(?[2-9]\\d{2}\\)?[-.\\s]?\\d{3}[-.\\s]?\\d{4}",
+        "\\+?[1-9]\\d{1,3}[-.\\s]?\\(?\\d{1,4}\\)?[-.\\s]?\\d{2,4}[-.\\s]?\\d{2,4}"
+      ]
+    },
+    {
+      "id": "SD-003",
+      "name": "South African National ID",
+      "description": "Detects 13-digit South African ID numbers (YYMMDDSSSSCAZ) validated with the Luhn checksum algorithm.",
+      "category": "SENSITIVE_DATA",
+      "severity": "HIGH",
+      "action": "REDACT",
+      "enabled": true,
+      "patterns": [
+        "\\b(\\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\\d|3[01]))\\d{7}\\b"
+      ]
+    },
+    {
+      "id": "SD-004",
+      "name": "API Keys and Cloud Tokens",
+      "description": "Detects recognizable cloud credentials (e.g., OpenAI, AWS, GitHub tokens) and high-entropy secret patterns.",
+      "category": "CREDENTIAL_EXPOSURE",
+      "severity": "CRITICAL",
+      "action": "BLOCK",
+      "enabled": true,
+      "patterns": [
+        "\\bsk-[a-zA-Z0-9]{20,48}\\b",
+        "\\bAKIA[0-9A-Z]{16}\\b",
+        "\\bgh[pousr]_[A-Za-z0-9_]{36,255}\\b",
+        "\\bAIza[0-9A-Za-z\\-_]{35}\\b"
+      ]
+    },
+    {
+      "id": "SD-005",
+      "name": "Plaintext Password Assignments",
+      "description": "Detects direct password variable assignments such as 'password = mysecret123'.",
+      "category": "CREDENTIAL_EXPOSURE",
+      "severity": "HIGH",
+      "action": "BLOCK",
+      "enabled": true,
+      "patterns": [
+        "(?i)\\b(password|passwd|pwd|secret)\\s*[:=]\\s*['\"]?([^\\s'\";]{4,})['\"]?"
+      ]
+    }
+  ]
+}

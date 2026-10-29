@@ -1,0 +1,6 @@
+{
+  "name": "AI Policy Enforcement Gateway",
+  "description": "Real-time security gateway inspecting AI prompts, detecting prompt injections and sensitive data, enforcing security policies, and maintaining auditable logs.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
